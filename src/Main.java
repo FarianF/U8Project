@@ -6,12 +6,17 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         String[][] maze = getMaze("src/maze1");
-
-        for(int row = 0; row < maze.length; row++){
-            for(int col = 0; col < maze[0].length; col++){
-                String dot = maze[row][col];
-                if(dot.equals(".")){
-                    System.out.println(row + "," + col);
+        Maze maze1 = new Maze(maze);
+        for(int row = 0; row < maze1.getMaze().length; row++){
+            for(int col = 0; col < maze1.getMaze()[0].length; col++){
+                if(maze1.canGoEast()){
+                    System.out.println(maze1.getPoint1() + "," + maze1.getPoint2());
+                } else if (maze1.canGoWest()) {
+                    System.out.println(maze1.getPoint1() + "," + maze1.getPoint2());
+                } else if (maze1.canGoSouth()) {
+                    System.out.println(maze1.getPoint1() + "," + maze1.getPoint2());
+                } else if (maze1.canGoNorth()) {
+                    System.out.println(maze1.getPoint1() + "," + maze1.getPoint2());
                 }
             }
         }
@@ -42,7 +47,7 @@ public class Main {
         for (int i = 0; i < fileData.size(); i++) {
             String d = fileData.get(i);
             for (int j = 0; j < d.length(); j++) {
-                maze[i][j] = d.charAt(j) + "";
+                maze[i][j] = String.valueOf(d.charAt(j));
             }
         }
         return maze;
