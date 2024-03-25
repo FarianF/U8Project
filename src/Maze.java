@@ -2,118 +2,49 @@ import java.util.ArrayList;
 
 public class Maze {
     private String[][] maze;
-    private int point1;
-    private int point2;
-    private ArrayList<String> pointList;
+    private ArrayList<String> path;
 
     public Maze(String[][] maze) {
         this.maze = maze;
-        this.point1 = 0;
-        this.point2 = 0;
-        this.pointList = new ArrayList<>();
+        this.path = new ArrayList<>();
     }
 
     public ArrayList<String> solveMaze() {
-        ArrayList<String> path = new ArrayList<>();
-        while (point1 != maze.length - 1 || point2 != maze[0].length - 1) {
-            if (canGoSouth()) {
-                continue;
-            }
-            if (canGoEast()) {
-                continue;
-            }
-            if (canGoNorth()) {
-                continue;
-            }
-            if (canGoWest()) {
-                continue;
-            }
-            // If there's no way to move, backtrack
-            if (!pointList.isEmpty()) {
-                String lastPoint = pointList.remove(pointList.size() - 1);
-                String[] coordinates = lastPoint.split(",");
-                point1 = Integer.parseInt(coordinates[0]);
-                point2 = Integer.parseInt(coordinates[1]);
-            } else {
-                // If pointList is empty, maze is unsolvable
-                System.out.println("Maze is unsolvable!");
-                return path;
-            }
+        explore(0, 0);
+        // Reverse the path to print it in the correct order
+        ArrayList<String> reversedPath = new ArrayList<>();
+        for (int i = path.size() - 1; i >= 0; i--) {
+            reversedPath.add(path.get(i));
         }
-        // Add starting point to the path
-        path.add("(" + 0 + ", " + 0 + ")");
-
-        // Add all points from pointList to the path, excluding duplicates
-        for (String point : pointList) {
-            path.add("(" + point + ")");
-        }
-
-        return path;
+        return reversedPath;
     }
 
-    public boolean canGoNorth() {
-        try {
-            String north = maze[point1 - 1][point2];
-            if (north.equals("#")) {
-                return false;
-            }
-        } catch (IndexOutOfBoundsException e) {
-            return false;
+    private boolean explore(int x, int y) {
+        // Base case: If we reach the end of the maze
+        if (x == maze.length - 1 && y == maze[0].length - 1) {
+            path.add("(" + x + ", " + y + ")");
+            return true;
         }
-        point1 = point1 - 1;
-        String pointForList = point1 + "," + point2;
-        checkList(pointForList);
-        return true;
+
+        // Check if current position is valid and not already visited
+        if (isValid(x, y)) {
+            // Mark current position as visited
+            maze[x][y] = "#";
+
+            // Explore all possible directions
+            if (explore(x + 1, y) || explore(x, y + 1) || explore(x - 1, y) || explore(x, y - 1)) {
+                path.add("(" + x + ", " + y + ")");
+                return true;
+            }
+
+            // If no path found from this position, backtrack
+            maze[x][y] = ".";
+        }
+
+        return false;
     }
 
-    public boolean canGoEast() {
-        try {
-            String east = maze[point1][point2 + 1];
-            if (east.equals("#")) {
-                return false;
-            }
-        } catch (IndexOutOfBoundsException e) {
-            return false;
-        }
-        point2 = point2 + 1;
-        String pointForList = point1 + "," + point2;
-        checkList(pointForList);
-        return true;
-    }
-
-    public boolean canGoSouth() {
-        try {
-            String south = maze[point1 + 1][point2];
-            if (south.equals("#")) {
-                return false;
-            }
-        } catch (IndexOutOfBoundsException e) {
-            return false;
-        }
-        point1 = point1 + 1;
-        String pointForList = point1 + "," + point2;
-        checkList(pointForList);
-        return true;
-    }
-
-    public boolean canGoWest() {
-        try {
-            String west = maze[point1][point2 - 1];
-            if (west.equals("#")) {
-                return false;
-            }
-        } catch (IndexOutOfBoundsException e) {
-            return false;
-        }
-        point2 = point2 - 1;
-        String pointForList = point1 + "," + point2;
-        checkList(pointForList);
-        return true;
-    }
-
-    public void checkList(String pointForList) {
-        if (!pointList.contains(pointForList)) {
-            pointList.add(pointForList);
-        }
+    private boolean isValid(int x, int y) {
+        return x >= 0 && y >= 0 && x < maze.length && y < maze[0].length && maze[x][y].equals(".");
     }
 }
